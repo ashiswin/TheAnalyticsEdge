@@ -1,0 +1,54 @@
+---
+title: "Test your knowledge of R"
+output: html_notebook
+---
+
+## Question 1
+
+Define x and y
+```{r}
+x <- c(4, 2, 6)
+y <- c(1, 0, -1)
+```
+
+* length(x)
+```{r}
+length(x)
+```
+
+* sum(x)
+
+```{r}
+sum(x)
+```
+
+* sum(x^2)
+
+```{r}
+sum(x ^ 2)
+```
+
+* x + y
+```{r}
+x + y
+```
+
+* x * y
+```{r}
+x * y
+```
+
+* x - 2
+```{r}
+x - 2
+```
+
+* x ^ 2
+```{r}
+x ^ 2
+```
+
+x * y[1:2]
+```{r}
+x * y[1:2]
+```
