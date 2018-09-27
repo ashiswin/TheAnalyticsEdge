@@ -1,4 +1,4 @@
-setwd('/Users/ashiswin/Documents/School/Analytics Edge/Week 2')
+setwd('/Users/ashiswin/Documents/School/Analytics Edge/Week 2/Predicting the Quality and Price of Wine')
 wine <- read.csv("wine.csv")
 str(wine)
 summary(wine)
@@ -11,14 +11,16 @@ pairs(wine)
 # Make my training and testing set
 winetrain <- subset(wine, wine$VINT <= 1978 & !is.na(wine$LPRICE)) # Remove all NA items
 winetest <- subset(wine, wine$VINT > 1978)
-
+winetrain$HRAINDEGREE <- winetrain$HRAIN * winetrain$DEGREES
 m1 <- lm(LPRICE ~ WRAIN, winetrain)
 m1a <- lm(LPRICE ~ WRAIN + VINT, winetrain)
 m2 <- lm(LPRICE ~ VINT + WRAIN + DEGREES + HRAIN, winetrain)
+m3 <- lm(LPRICE ~ VINT + WRAIN + DEGREES + HRAIN + HRAINDEGREE, winetrain)
 
 summary(m1)
 summary(m2)
 summary(m1a)
+summary(m3)
 
 plot(wine$VINT, wine$LPRICE)
 abline(m1)
