@@ -1,0 +1,86 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# (a) Define two new variables age91 and age92 that captures the age of the wine (in years) at the time of the auctions. For example, a 1961 wine would have an age of 30 at the auction in 1991. What is the average price of wines that were 15 years or older at the time of the 1991 auction?
+```{r}
+wine <- read.csv('winedata.csv')
+wine$age91 = 1991 - wine$vintage
+wine$age92 = 1992 - wine$vintage
+
+mean(subset(wine, age91 >= 15)$price91)
+```
+
+# (b) What is the average price of the wines in the 1991 auction that were produced in years when both the harvest rain was below average and the temperature difference was below average?
+```{r}
+mean(subset(wine, hrain < mean(wine$hrain) & tempdiff < mean(wine$tempdiff, na.rm = T))$price91)
+```
+
+# (c) In this question, you will develop a simple linear regression model to fit the log of the price at which the wine was auctioned in 1991 with the age of the wine. To fit the model, use a training set with data for the wines up to (and including) the year 1981. What is the R-squared for this model?
+```{r}
+train <- subset(wine, vintage <= 1981)
+model1 <- lm(log(price91) ~ age91, train)
+summary(model1)
+```
+
+The R^2 is 0.6675
+
+# (d) Find the 99% confidence interval for the estimated coefficients from the regression.
+```{r}
+confint(model1, level = 0.99)
+```
+
+# (e) Use the model to predict the log of prices for wines made from 1982 onwards and auctioned in 1991. What is the test R-squared?
+```{r}
+test <- subset(wine, vintage > 1981)
+predict1 <- predict(model1, test)
+
+sse = sum((log(test$price91) - predict1) ^ 2)
+sst = sum((log(test$price91) - mean(log(train$price91))) ^ 2)
+testR2 = 1 - (sse / sst)
+testR2
+```
+
+# (f) Which among the following options describes best the quality of fit of the model for this dataset in comparison with the Bordeaux wine dataset that was analyzed by Orley Ashenfelter?
+The result indicates that the variation of the prices of the wines in this dataset is explained much more by the age of the wine in comparison to Bordeaux wines.
+
+# (g) Construct a multiple regression model to fit the log of the price at which the wine was auctioned in 1991 with all the possible predictors (age91, temp, hrain, wrain, tempdiff) in the training dataset. To fit your model, use the data for wines made up to (and including) the year 1981. What is the R-squared for the model?
+```{r}
+model2 <- lm(log(price91) ~ age91 + temp + hrain + wrain + tempdiff, train)
+summary(model2)
+```
+The R^2 is 0.7938.
+
+# (h) Is this model preferred to the model with only the age variable as a predictor (use the adjusted R-squared for the model to decide on this)?
+It is as it has a higher adjusted R^2 as compared to the original model. However, we should note that the other variables would be considered less relevant to the model.
+
+# (i) Which among the following best describes the output from the fitted model?
+The result indicates that lesser the harvest rain, the better is the price and quality of the wine.
+
+# (j) Of the five variables (age91, temp, hrain, wrain, tempdiff), drop the two variables that are the least significant from the results in (g). Rerun the linear regression and write down your fitted model.
+```{r}
+model3 <- lm(log(price91) ~ age91 + temp + hrain, train)
+summary(model3)
+```
+
+# (k) Is this model preferred to the model with all variables as predictors (use the adjusted R-squared in the training set to decide on this)?
+This model is preferred as the adjusted R-squared is higher.
+
+# (l) Using the variables identified in (j), construct a multiple regression model to fit the log of the price at which the wine was auctioned in 1992 (remember to use age92 instead of age91). To fit your model, use the data for wines made up to (and including) the year 1981. What is the R-squared for the model?
+```{r}
+model4 <- lm(log(price92) ~ age92 + temp + hrain, train)
+summary(model4)
+```
+
+The R^2 is 0.5834.
+
+# (m) Suppose in this application, we assume that a variable is statistically significant at the 0.2 level. Would you would reject the hypothesis that the coefficient for the variable hrain is nonzero?
+Yes as it's p-value is 0.320713.
+
+# (n) By separately estimating the equations for the wine prices for each auction, we can better establish the credibility of the explanatory variables because:
+The effect of the weather variables and age of the wine (sign of the estimated coeffi-
+cients) can be checked for consistency across years.
+
+# (o) The current fit of the linear regression using the weather variables drops all observations where any of the entries are missing. Provide a short explanation on when this might not be a reasonable approach to use.
+Since we only have 1 observation per year starting from 1961 (25 observations), removing a single observation reduces the data set by a lot. Hence, we will be regressing on very little data, making our model less reliable.

@@ -1,0 +1,24 @@
+---
+title: "Practice Question 7"
+output: html_notebook
+---
+
+# (a) Read the help file of stars(). Make a star plot of all variables. What can you say about Sierre?
+```{r}
+stars(as.matrix(swiss), key.loc = c(18,2))
+```
+
+Sierre has a very low education level and number of high scorers in the army exam. It is largely Agricultural and has a high fertility rate. It's infant mortality rate is moderate and it is largely Catholic.
+
+# (b) We are interested in the relation between Fertility and Education. Therefore we would like to make a scatter-plot of Fertility against Education whose points are stars with the information of the other variables. In addition we need the argument location.
+```{r}
+stars(as.matrix(swiss[, c(2,3,5,6)]),location = as.matrix(swiss[, c(4,1)]),axes = T)
+```
+
+# (c) Set the argument draw.segments to TRUE to get segments instead of stars. Place a legend with key.loc.
+```{r}
+stars(as.matrix(swiss[, c(2,3,5,6)]),location = as.matrix(swiss[, c(4,1)]),axes = T, draw.segments = T, key.loc = c(60, 90), labels = NULL, len = 3)
+```
+
+# (d) What relation do you get from the plots?
+More educated regions had much lower fertility rates than regions that were less educated. Therefore, education and fertility are negatively correlated.

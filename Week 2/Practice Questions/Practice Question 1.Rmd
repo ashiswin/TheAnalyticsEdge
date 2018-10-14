@@ -1,0 +1,75 @@
+---
+title: "Practice Questions"
+output: html_notebook
+---
+
+# Question 1
+## (a) Perform a simple linear regression with mpg as the response and horsepower as the pre- dictor. Comment on why you need to change the horsepower variable before performing the regression.
+```{r}
+auto <- read.csv('Auto.csv')
+auto$horsepower.numeric <- as.numeric(as.character(auto$horsepower))
+model1 <- lm( mpg ~ horsepower.numeric, auto)
+```
+
+Horsepower was a factor variable, so we needed to convert it to a numeric.
+
+## (b) Comment on the output by answering the following questions:
+```{r}
+summary(model1)
+```
+
+### Is there a strong relationship between the predictor and the response?
+It is quite strong as its p-value is almost 0, implying a strong relationship.
+
+### Is the relationship between the predictor and the response positive or negative?
+Negative
+
+## (c) What is the predicted mpg associated with a horsepower of 98? What is the associated 99% confidence interval? Hint: You can check the predict.lm function on how the confidence interval can be computed for predictions with R.
+```{r}
+test = data.frame(horsepower.numeric = 98)
+predict(model1, newdata = test, type = "response", interval = c("confidence"), level = .99)
+```
+
+# (d) Compute the correlation between the response and the predictor variable. How does this compare with the R2 value?
+```{r}
+cor(auto$mpg, auto$horsepower.numeric, use = "pairwise.complete.obs")
+cor(auto$mpg, auto$horsepower.numeric, use = "pairwise.complete.obs") ^ 2
+```
+
+## (e) Plot the response and the predictor. Also plot the least squares regression line.
+```{r}
+plot(auto$horsepower.numeric, auto$mpg)
+abline(model1)
+```
+
+## (f) Use the following two commands in R to produce diagnostic plots of the linear regression fit:
+```{r}
+layout(matrix(1:4,2,2))
+plot(model1)
+```
+
+# Question 2
+## (a) Produce a scatterplot matrix which includes all the variables in the dataset.
+```{r}
+plot(auto)
+```
+
+## (b)  Compute a matrix of correlations between the variables using the function cor(). You need to exclude the name variables which is qualitative.
+```{r}
+cor(subset(auto, select = c(mpg, horsepower.numeric, displacement, weight, acceleration, year, origin)), use = "pairwise.complete.obs")
+```
+
+### (c) Perform a multiple linear regression with mpg as the response and all other variables except name as the predictors. Comment on the output by answering the following questions:
+```{r}
+model2 <- lm(mpg ~ horsepower.numeric + displacement + weight + acceleration + year + origin + cylinders, auto)
+summary(model2)
+```
+
+#### Is there a strong relationship between the predictors and the response?
+Yes as the R^2 value is 0.8215, which is very high.
+
+#### Which predictors appear to have a statistically significant relationship to the response?
+There is a highly statistically significant between mpg and weight, year and origin. This can be seen from the very low p-values they have that allow us to reject the null hypothesis that they equal to 0. There is a slight relationship with displacement as well.
+
+#### What does the coefficient for the year variable suggest?
+There is a positive correlation between the year and the mpg. More recent cars have higher MPGs.

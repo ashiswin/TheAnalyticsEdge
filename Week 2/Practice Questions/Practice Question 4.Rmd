@@ -1,0 +1,71 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# (a) For each predictor, fit a simple linear regression model using a single variable to predict the response. In which of these models is there a statistically significant relationship between the predictor and the response? Plot the figure of relationship between medv and lstat as an example to validate your finding.
+```{r}
+boston <- read.csv("Boston.csv")
+
+model1 <-  lm(medv ~ crim, boston)
+model2 <-  lm(medv ~ zn, boston)
+model3 <-  lm(medv ~ indus, boston)
+model4 <-  lm(medv ~ chas, boston)
+model5 <-  lm(medv ~ nox, boston)
+model6 <-  lm(medv ~ rm, boston)
+model7 <-  lm(medv ~ age, boston)
+model8 <-  lm(medv ~ dis, boston)
+model9 <-  lm(medv ~ rad, boston)
+model10 <-  lm(medv ~ tax, boston)
+model11 <-  lm(medv ~ ptratio, boston)
+model12 <-  lm(medv ~ black, boston)
+model13 <-  lm(medv ~ lstat, boston)
+
+summary(model1)
+summary(model2)
+summary(model3)
+summary(model4)
+summary(model5)
+summary(model6)
+summary(model7)
+summary(model8)
+summary(model9)
+summary(model10)
+summary(model11)
+summary(model12)
+summary(model13)
+```
+
+All of them have a statistically significant relationship.
+```{r}
+plot(boston$lstat, boston$medv)
+abline(model13)
+```
+
+# (b) Fit a multiple linear regression models to predict your response using all the predictors. Compare the adjusted R2 from this model with the simple regression model. For which predictors, can we reject the null hypothesis H0 : ??j = 0?
+```{r}
+model14 <- lm(medv ~ ., boston)
+summary(model14)
+```
+
+The R^2 is much higher than the simple models. We can reject all of the predictors' H0s besides indus and age at a 5% significance level.
+
+# (c) Create a plot displaying the univariate regression coefficients from (a) on the X-axis and the multiple regression coefficients from (b) on the Y-axis. That is each predictor is displayed as a single point in the plot. Comment on this plot.
+```{r}
+x <- as.numeric(c(coef(model1)[2], coef(model2)[2], coef(model3)[2], coef(model4)[2], coef(model5)[2], coef(model6)[2], coef(model7)[2], coef(model8)[2], coef(model9)[2], coef(model10)[2], coef(model11)[2], coef(model12)[2], coef(model13)[2]))
+y <- as.numeric(coef(model14)[2:14])
+plot(x, y)
+```
+
+Quite a number of the coefficients are similar to the univariate coefficients. However, there are 3 extremely different ones.
+
+# (d) In this question, we will check if there is evidence of non-linear association between the lstat predictor variable and the response?
+To answer the question, fit a model of the form
+medv = ??0 + ??1lstat + ??2lstat2 + ??.
+You can make use of the poly() function in R. Does this help improve the fit. Add higher degree polynomial fits. What is the degree of the polynomial fit beyond which the terms no longer remain significant?
+```{r}
+model15 <- lm(medv ~ poly(lstat, degree = 10), boston)
+summary(model15)
+```
+
+Higher polynomial fits do help. Beyond 5, however, the terms are no longer significant.

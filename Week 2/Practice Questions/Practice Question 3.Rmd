@@ -1,0 +1,63 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+## (a) Perform the following commands in R:
+```{r}
+set.seed(1)
+x1 <- runif(100)
+x2 <- 0.5*x1 + rnorm(100)/10
+y <- 2 + 2*x1 + 0.3*x2 + rnorm(100)
+```
+
+### The last line corresponds to creating a linear model in which y is a function of x1 and x2. Write out the form of the linear model. What are the regression coefficients?
+2, 0.3 and 2
+
+## (b) What is the correlation between x1 and x2? Create a scatterplot displaying the relation- ship between the variables.
+```{r}
+cor(x1, x2)
+plot(x1, x2)
+```
+
+## (c) Using the data, fit a least square regression to predict y using x1 and x2.
+```{r}
+model3 <- lm(y ~ x1 + x2)
+summary(model3)
+```
+
+### What are the estimated parameters of ????0, ????1 and ????2? How do these relate to the true ??0, ??1 and ??
+????0 is very close to the true ??0. However, the other 2 are not as close to their true values.
+
+### Can you reject the null hypothesis H0 : ??1 = 0?
+It can be rejected at a 5% and 1% significance level.
+
+### How about the null hypothesis H0 : ??2 = 0?
+It cannot be rejected.
+
+## (d) Now fit a least squares regression to predict y using only x1.
+```{r}
+model4 <- lm(y ~ x1)
+summary(model4)
+```
+
+### How does the estimated ????1 relate to the true ??1?
+They are very similar. In fact ????1 is 0.0241 off from the true ??1 of 2.
+
+### Can you reject the null hypothesis H0 : ??1 = 0?
+Yes, as the p-value is very close to 0
+
+## (e) Now fit a least squares regression to predict y using only x2.
+```{r}
+model5 <- lm(y ~ x2)
+summary(model5)
+```
+
+### How does the estimated ????2 relate to the true ??2?
+The value is very different from the true value of 0.3
+
+### Can you reject the null hypothesis H0 : ??2 = 0?
+Yes as the p-value is very close to 0
+
+## (f) Provide an explanation on the results in parts (c)-(e).
+There is multicollinearity in the data between x1 and x2. In doing multi- ple regression we see this effect where it is difficult to reject H0 : ??i = 0 (for one of the coefficients), while we see that with a single regression (with one variable), we can reject H0 : ??i = 0. This is caused by multicollinearity.

@@ -1,0 +1,88 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# (a) Read the data into the dataframe batters. Which player made the most salary in the 2006 season?
+```{r}
+batters <- read.csv('batters.csv')
+batters$playerID[batters$yearID == 2006][which.max(batters$salary[batters$yearID == 2006])]
+```
+
+# (b) What is the ratio of the maximum salary to the minimum salary among all players in the 2006 season?
+```{r}
+maxsalary <- batters$salary[batters$yearID == 2006][which.max(batters$salary[batters$yearID == 2006])]
+minsalary <- batters$salary[batters$yearID == 2006][which.min(batters$salary[batters$yearID == 2006])]
+
+maxsalary / minsalary
+```
+
+# (c) At the end of the 1996 season, which teams had the set of batters with the minimum and maximum total sum of salaries respectively?
+```{r}
+sort(tapply(batters$salary[batters$yearID == 1996], batters$teamID[batters$yearID == 1996], sum))
+```
+OAK had the minimum and NYA had the maximum
+
+# (e)  Plot the histogram of the salary variable. What best describes the distribution of player salaries?
+```{r}
+hist(batters$salary)
+```
+
+Most of the salaries are small, with a relatively small number of much larger salaries (this is referred to as ???right-skewed???).
+
+# (f) When handling a skewed dependent variable, it is often useful to predict the logarithm of the dependent variable instead of the dependent variable itself - this prevents the small number of unusually large or small observations from having an undue influence on the predictive model. In this problem, you will predict the natural logarithm of the salary variable at the end of a season with the number of runs scored in the season and a constant (intercept). Use the entire dataset to build your model with linear regression. What does your model predict to be the logarithm of the salary of a batter who scores 0 runs in a season?
+```{r}
+model1 <- lm(log(salary) ~ R, batters)
+predict1 <- predict(model1, data.frame(R = 0))
+predict1
+```
+
+13.4175
+
+# (g) What is the actual average of the logarithm of the salary of batters who score 0 runs in a season in the dataset? Remember to drop missing entries in computing this number.
+```{r}
+nalessbatters = na.omit(batters)
+mean(log(nalessbatters$salary[nalessbatters$R == 0]))
+```
+
+# (h) Comment on whether the results in questions (f) and (g) are close to each other. If yes provide a brief explanation.
+Yes they are very close, just 0.2 off. This is because we have a lot of data, allowing us to create a more reliable model.
+
+# (i) Assume that the number of runs scored by a player increases by 1. Suppose ??1 is the coefficient of the number of runs scored in question (f). What best describes how your model would predict the change in the salary?
+New salary = Old salary ?? e??1
+
+# (j) We will now compare the effect of two baseball statistics on the salaries of the players. To do this, we need to define two new variables OBP (on-base percentage) and SLG (slugging percentage) as follows:
+```{r}
+batters$OBP = (batters$H + batters$BB + batters$HBP) / (batters$AB + batters$BB + batters$HBP + batters$SF)
+
+batters$SLG = (batters$H + batters$X2B + (batters$X3B * 2) + (batters$HR * 3)) / (batters$AB)
+
+mean(batters$OBP[batters$yearID == 2006], na.rm = T)
+```
+
+# (k) Perform a two sided t-test to check if the average slugging percentage in the 1996 and 2006 seasons are different. What is the p-value of the test and your conclusion?
+```{r}
+t.test(batters$SLG[batters$yearID == 1996], batters$SLG[batters$yearID == 2006], alternative = "two.sided")
+```
+
+p-value of test is 0.4045, which seems to indicate that there is not enough evidence to reject the null hypothesis that the average slugging percentage of the 1996 and 2006 seasons are the same.
+
+# (l) We will now use linear regression to predict the logarithm of the salary using the OBP and SLG variables and the constant (intercept). To build the model, we will consider only batters with at least 130 at-bats, since this is required to qualify as honors for rookie of the year and helps provide an objective cutoff to check the effect of performance on players with relatively large sample of at-bats. Using only data for the year 1996, what is adjusted R-squared for your model?
+```{r}
+model2 <- lm(log(salary) ~ OBP + SLG, batters[batters$AB >= 130 & batters$yearID == 1996, ])
+summary(model2)
+```
+0.2589
+
+# (m) Is there evidence that you can reject the three null hypothesis H0 : ??j = 0 for the OBP, SLG and constant variables? Use a p-value of 0.05 to make your conclusion.
+Yes.
+
+# (n) Redo the linear regression from question (l) using only data for 2006. What is the adjusted R-squared for your model?
+```{r}
+model3 <- lm(log(salary) ~ OBP + SLG, batters[batters$AB >= 130 & batters$yearID == 2006, ])
+summary(model3)
+```
+0.1164
+
+# (o) Billy Beane, the Oakland Athletics coach believed that on-base percentage was much more important than the slugging percentage to help win a game. By looking at the coefficients of the OBP and SLG variables from the regressions in questions (l) and (n), we can conclude that:
+The market undervalued the OBP statistic relative to the SLG statistic in 1996 before Moneyball was published. This has been corrected in 2006.

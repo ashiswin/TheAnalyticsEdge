@@ -1,0 +1,82 @@
+---
+title: "Practice Question 8"
+output: html_notebook
+---
+
+# (a) Read the data into a dataframe called Parole. What fraction of parole violators are female?
+```{r}
+Parole <- read.csv('Parole.csv')
+mean(Parole$Male == 0, na.rm = T)
+```
+
+# (b) In this dataset, which crime is the most common in Kentucky?
+```{r}
+kentucky <- subset(Parole, State == 'Kentucky')
+table(kentucky$Crime)
+```
+
+Drugs
+
+# (c) In the ggplot2 package, we need to specify a dataset, aesthetic, and geometry while creating visualizations. To create a histogram, the geometry will be geom histogram. Create a histogram to find out the distribution of the age of parolees, by typing the following command in your R console:
+```{r}
+ggplot(data = Parole, aes(x = Age)) + geom_histogram()
+```
+
+# (d) By default, geom histogram divides the data into 30 bins. Change the width of the bins to 5 years by adding the argument binwidth = 5. Also set the center of one of the bins to 17.5 by adding the argument center = 17.5. Also define the argument closed = c(???left???) to indicate that left endpoint is included in the bin, but the right endpoint isn???t. Which among these age brackets has the most parolees?
+```{r}
+ggplot(data = Parole, aes(x = Age)) + geom_histogram(binwidth = 5, center = 17.5, closed = c("left"))
+```
+
+[20,25)
+
+# (e) Redo the histogram by adding the argument color = c(???blue???) to geom histogram. What does this argument do?
+```{r}
+ggplot(data = Parole, aes(x = Age)) + geom_histogram(binwidth = 5, center = 17.5, closed = c("left"), color = c("blue"))
+```
+
+Changes the outline colour of the bars
+
+# (f) Now suppose we are interested in seeing how the age distribution of male parolees compares to the age distribution of female parolees. One option would be to create a heatmap with Age on one axis and Male (a binary variable in our data set) on the other axis. Another option would be to stick with histograms, but to create a separate histogram for each gender. ggplot has the ability to do this automatically using the facet grid command. To create separate histograms for male and female, type the following command into your R console:
+```{r}
+ggplot(data = Parole, aes(x = Age)) + geom_histogram(binwidth = 5, center = 17.5, closed = c("left"), color = c("blue")) + facet_grid(Male ~ .)
+```
+
+[35, 40)
+
+# (g) Now change the facet grid argument to facet grid(.???Male). What does this do?
+```{r}
+ggplot(data = Parole, aes(x = Age)) + geom_histogram(binwidth = 5, center = 17.5, closed = c("left"), color = c("blue")) + facet_grid(. ~ Male)
+```
+
+Puts the histograms side-by-side instead of on top of each other.
+
+# (i) An alternative choice to creating separate histograms is to color the groups differently. To do this, we need to tell ggplot that a property of the data (male or not male) should be translated to an aesthetic property of the histogram. We can do this with the fill parameter as follows:
+```{r}
+ggplot(data = Parole, aes(x = Age,fill = as.factor(Male))) +
+geom_histogram(binwidth=5,closed="left",center=17.5,color=c('blue'), position = 'identity', alpha = 0.5)
+```
+
+[15, 20), [55, 60), [65, 70)
+
+# (j) Which of the histograms (faceting or overlaying) do you think better visualizes the data? Why?
+The overlay. It reduces the distortion of the plot due to the squeezing of it into a smaller height.
+
+# (k) Now let us explore the amount of time served by parolees. Create a basic histogram as in part (c) but with TimeServed on the x-axis. Set the binwidth to 1 month, center to 0.5 and closed to ???right???. What is the most common length of time served according to this histogram?
+```{r}
+ggplot(data = Parole, aes(x = TimeServed)) + geom_histogram(binwidth = 1, center = 0.5, closed = c("right"))
+```
+6 months
+
+# (l) Now, suppose we suspect that it is unlikely that each crime has the same distribution of time served. To visualize this change use facet grid to create a separate histogram of TimeServed for each value of the variable Crime. Which crime type has no observations where time served is less than one month?
+```{r}
+ggplot(data = Parole, aes(x = TimeServed)) + geom_histogram(binwidth = 1, center = 0.5, closed = c("right")) + facet_grid(. ~ Crime)
+```
+
+Driving
+
+# (m) Now instead of faceting the histogram, overlay them. Remember to set the position and alpha parameters so that histograms are not stacked. Also make sure to indicate the fill aesthetic is Crime. In this case, faceting seems like a better alternative. Why?
+```{r}
+ggplot(data = Parole, aes(x = TimeServed, fill = as.factor(Crime))) + geom_histogram(binwidth = 1, center = 0.5, closed = c("right"), color = c('blue'), position = 'identity', alpha = 0.5)
+```
+
+With four different groups, it can be hard to tell them apart when they are overlayed, especially if they have similar values.

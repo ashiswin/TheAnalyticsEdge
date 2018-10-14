@@ -1,0 +1,53 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# (a) We are interested in how changes in these variables affect future temperatures, as well as how well these variables explain temperature changes so far. Read the dataset climate_change.csv into R. Then, split the data into a training set, consisting of all the observations up to and including 2006, and a testing set consisting of the remaining years. A training set refers to the data that will be used to build the model, and a testing set refers to the data we will use to test our predictive ability. Build a linear regression model to predict the dependent variable Temp, using MEI, CO2, CH4, N2O, CFC.11, CFC.12, TSI and Aerosols as independent variables (Year and Month should not be used in the model). Use the training set to build the model. What is the model R2?
+```{r}
+climate <- read.csv("climate_change.csv")
+train <- subset(climate, Year <= 2006)
+test <- subset(climate, Year > 2006)
+
+model1 <- lm(Temp ~ MEI + CO2 + CH4 + N2O + CFC.11 + CFC.12 + TSI + Aerosols, train)
+summary(model1)
+```
+
+The R^2 is 0.7509.
+
+# (b) Which variables are significant in the model? We will consider a variable significant in this example only if the p-value is below 0.05.
+All of them are significant besides CH4 and N2O.
+
+# (c) Current scientific opinion is that nitrous oxide and CFC-11 are greenhouse gases: gases that are able to trap heat from the sun and contribute to the heating of the Earth. However, the regression coefficients of both the N2O and CFC-11 variables are negative, indicating that increasing atmospheric concentrations of either of these two compounds is associated with lower global temperatures. Compute the correlations in the training set. Which of the following is the simplest correct explanation for this contradiction?
+```{r}
+cor(train)
+```
+
+All of the gas concentration variables reflect human development - N2O and CFC.11 are correlated with other variables in the data set.
+
+# (d) Given that the correlations are so high, let us focus on the N2O variable and build a model with only MEI, TSI, Aerosols and N2O as independent variables. Remember to use the training set to build the model. What is the coefficient of N2O in this reduced model? How does this compare to the coefficient in the previous model with all of the variables? What is the model R2?
+```{r}
+model2 <- lm(Temp ~ MEI + N2O + TSI + Aerosols, train)
+summary(model2)
+```
+
+2.532e-02. It has a positive correlation, which is the opposite of the previous model. This model's R^2 is 0.7261.
+
+# (e) We have many variables in this problem, and as we have seen above, dropping some from the model does not decrease model quality. R provides a function step(), that will automate the procedure of trying different combinations of variables to find a good compromise of model simplicity and R2. This trade-off is formalized by the Akaike information criterion (AIC) - it can be informally thought of as the quality of the model with a penalty for the number of variables in the model. The step function has one argument - the name of the initial model. It returns a simplified model. Use the step function in R to derive a new model, with the full model as the initial model. What is the R2 value of the model produced by the step function? Which of the variable(s) are eliminated from the full model by the step function? It is interesting to note that the step function does not address the collinearity of the variables, except that adding highly correlated variables will not improve the R2 significantly. The consequence of this is that the step function will not necessarily produce a very interpretable model - just a model that has balanced quality and simplicity for a particular weighting of quality and simplicity (AIC).
+```{r}
+model3 <- step(model1)
+summary(model3)
+```
+
+The R^2 is 0.7508. The eliminated variable is CH4.
+
+# (f) We have developed an understanding of how well we can fit a linear regression to the training data, but does the model quality hold when applied to unseen data? Using the model produced from the step function, calculate temperature predictions for the testing data set, using the predict function. What is the test R2?
+```{r}
+predict3 <- predict(model3, test)
+
+sse <- sum((test$Temp - predict3) ^ 2)
+sst <- sum((test$Temp - mean(train$Temp)) ^ 2)
+testR2 <- 1 - (sse / sst)
+testR2
+```
+

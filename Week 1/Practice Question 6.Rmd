@@ -1,0 +1,146 @@
+---
+title: "Practice Question 6"
+output: html_notebook
+---
+
+# (a) Using read.csv(), load the dataset from AnonymityPoll.csv into a data frame called poll and summarize it with the summary() and str() functions.
+
+```{r}
+poll <- read.csv('AnonymityPoll.csv')
+summary(poll)
+str(poll)
+```
+## How many people participated in the poll?
+1002
+
+# (b) Look at the breakdown of the number of people with smartphones using the table() command on the Smartphone variable.
+
+```{r}
+table(poll$Smartphone)
+```
+
+## How many interviewees responded that they use a smartphone?
+487
+
+## How many interviewees responded that they don???t use a smartphone?
+472
+
+## How many interviewees did not respond to the question, resulting in a missing value, or NA, in the summary() output?
+43
+
+# (c) Look at the breakdown of the number of people with smartphones and Internet use using the table() command.
+
+```{r}
+table(poll$Smartphone, poll$Internet.Use)
+```
+
+## How many interviewees reported not having used the Internet and not having used a smartphone?
+186
+
+## How many interviewees reported having used the Internet and having used a smart- phone?
+470
+
+## How many interviewees reported having used the Internet but not having used a smartphone?
+285
+
+## How many interviewees reported having used a smartphone but not having used the Internet?
+17
+
+# (d) Many of the response variables (Info.On.Internet, Worry.About.Info, Privacy.Importance, Anonymity.Possible, and Tried.Masking.Identity) were not collected if an interviewee does not use the Internet or a smartphone, meaning the variables will have missing values for these interviewees.
+```{r}
+sum(is.na(poll$Internet.Use))
+sum(is.na(poll$Smartphone))
+```
+## How many interviewees have a missing value for their Internet use?
+1
+
+## How many interviewees have a missing value for their smartphone use?
+43
+
+# (e) Use the subset function to obtain a data frame called ???limited???, which is limited to interviewees who reported Internet use or who reported smartphone use.
+```{r}
+
+limited <- subset(poll, Internet.Use == 1 | Smartphone == 1)
+str(limited)
+```
+
+## How many interviewees are in the new data frame?
+792
+
+# (f) For all the remaining questions use the limited data frame you have created. 
+```{r}
+summary(is.na(limited))
+```
+
+## Which variables have missing values in the limited data frame?
+Smartphone, Age, Conservativeness, Worry.About.Info, Privacy.Importance, Anonymity.Possible, Tried.Masking.Identity, Privacy.Laws.Effective
+
+# (g) What is the average number of pieces of personal information on the Internet, according to the Info.On.Internet variable?
+```{r}
+mean(limited$Info.On.Internet)
+```
+
+# (h) How many interviewees reported a value of 0 for Info.On.Internet? How many interviewees reported the maximum value of 11 for Info.On.Internet?
+```{r}
+sum(limited$Info.On.Internet == 0)
+sum(limited$Info.On.Internet == 11)
+```
+
+# (i) What proportion of interviewees who answered the Worry.About.Info question worry about how much information is available about them on the Internet?
+```{r}
+mean(limited$Worry.About.Info, na.rm = TRUE)
+```
+
+# (j) What proportion of interviewees who answered the Anonymity.Possible question think it is possible to be completely anonymous on the Internet?
+```{r}
+mean(limited$Anonymity.Possible, na.rm = TRUE)
+```
+
+# (k) Build a histogram of the age of interviewees.
+```{r}
+hist(limited$Age)
+```
+
+## What is the best represented age group in the population - people aged around 20, people aged around 40, people aged around 60, people aged around 80?
+60
+
+# (l) Both Age and Info.On.Internet are variables that take on many values, so a good way to observe their relationship is through a graph. However, because Info.On.Internet takes on a small number of values, multiple points can be plotted in exactly the same location on this graph using the plot() function.
+```{r}
+plot(limited$Age, limited$Info.On.Internet)
+```
+
+##What is the largest number of interviewees that have exactly the same value in their Age variable and the same value in their Info.On.Internet variable?
+```{r}
+max(table(limited$Info.On.Internet, limited$Age))
+```
+
+# (m) To avoid points covering each other up, we can use the jitter() function on the values we pass to the plot function. Experimenting with the command jitter(c(1, 2, 3)), what appears to be the functionality of the jitter command?
+```{r}
+jitter(c(1, 2, 3))
+```
+
+It adds slight noise to a given noise which will allow us to see the overlapping data as in the case of the plot in (l).
+
+# (n) Now, plot Age against Info.On.Internet with plot(jitter(limited$Age), jitter(limited$Info.On.Internet)). Comment on the relationship you observe between Age and Info.On.Internet?
+```{r}
+plot(jitter(limited$Age), jitter(limited$Info.On.Internet))
+```
+
+Younger people tend to have more information of theirs on the internet as opposed to the older people. This indicates a negative correlation between age and information on the internet.
+
+# (o) Use the tapply() function to find the average of the Info.On.Internet value, depending on whether an interviewee is a smartphone user or not?
+```{r}
+tapply(limited$Info.On.Internet, limited$Smartphone == 1, mean)
+```
+
+# (p) Similarly use tapply to break down the Tried.Masking.Identity variable for smartphone and non-smartphone users.
+```{r}
+tapply(limited$Tried.Masking.Identity, limited$Smartphone == 1, table)
+```
+
+## What proportion of smartphone users who answered the Tried.Masking.Identity question have tried masking their identity when using the Internet?
+93/764 = 0.1217
+
+## What proportion of non-smartphone users who answered the Tried.Masking.Identity question have tried masking their identity when using the Internet?
+
+0.0431
